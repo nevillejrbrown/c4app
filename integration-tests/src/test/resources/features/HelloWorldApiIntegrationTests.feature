@@ -20,7 +20,15 @@ Feature: C4APP API endpoint
     Then the api returns a 201 code
     And response has game id "2"
 
-
+  Scenario: Create second game
+    Given I POST to endpoint "/apis/v1/api/games/"
+    """
+       {
+          "username": "Kotlin"
+        }
+      """
+    Then the api returns a 201 code
+    And response has game id "3"
 
 #
 #Scenario: Get hello message
