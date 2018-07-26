@@ -1,7 +1,7 @@
 package org.nevillejrbrown.c4app.integration
 
+import cucumber.api.PendingException
 import cucumber.api.java.en.And
-import cucumber.api.java.en.Given
 import cucumber.api.java.en.Then
 import cucumber.api.java.en.When
 import io.restassured.RestAssured
@@ -9,13 +9,12 @@ import io.restassured.builder.RequestSpecBuilder
 import io.restassured.http.ContentType
 import io.restassured.response.ExtractableResponse
 import io.restassured.specification.RequestSpecification
-import org.hamcrest.Matchers.contains
+import org.assertj.core.api.Assertions.assertThat
 import org.nevillejrbrown.c4app.SpringBootKotlinApplication
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.context.ContextConfiguration
 import javax.annotation.PostConstruct
-import org.assertj.core.api.Assertions.assertThat
 
 
 @SpringBootTest(
@@ -31,6 +30,8 @@ class C4AppEndpointTests {
 
     private var response: ExtractableResponse<*>? = null
 
+    private var gameId:Int? = null
+
     @PostConstruct
     fun setup() {
         requestSpecification = RequestSpecBuilder()
@@ -39,7 +40,6 @@ class C4AppEndpointTests {
                 .build()
     }
 
-    @When("^a GET request is made to the URI: \"([^\"]*)\"$")
     fun getFromURL(url: String) {
         response = RestAssured
                 .given()
@@ -49,7 +49,6 @@ class C4AppEndpointTests {
                 .then().extract()
     }
 
-    @Given("I POST to endpoint \"([^\"]*)\"")
     fun postJSON(uri: String, requestBody: String) {
         response = RestAssured
                 .given()
@@ -59,29 +58,41 @@ class C4AppEndpointTests {
                 .then().extract()
     }
 
+    fun extractIdFromResponse() {
+        gameId = response?.jsonPath()?.get<Int>("gameId")
+    }
 
-
-    @And("^response for JsonSlurper \"([^\"]*)\" returns \"([^\"]*)\"$")
     fun responseIsCorrect(jsonSlurper: String, value: String) {
-        println("Got ID:::")
-        print("Body:")
-        println(response?.asString())
-        print(response?.jsonPath()?.get<Int>(jsonSlurper))
-        //response.jsonPath().
         assertThat(response?.jsonPath()?.get<Int>(jsonSlurper)).isEqualTo(1)
     }
 
-    @And("^response has game id \"([^\"]*)\"$")
-    fun gameWithIdReturned(gameId:Int) {
-        assertThat(response?.jsonPath()?.get<Int>("gameId")).isEqualTo(gameId)
-    }
-
-    @And("^the api returns a (\\d+) code$")
-    fun responseStatusIsCorrect(status: Int) {
-        print("Body:")
-        println(response?.asString())
-
+    fun responseStatusIsCorrectInResponse(expectedStatus: Int) {
         assertThat(response?.statusCode())
-                .isEqualTo(status)
+                .isEqualTo(expectedStatus)
     }
+
+    @When("^I create a game$")
+    fun createNewGame() {
+        // Write code here that turns the phrase above into concrete actions
+        postJSON("/apis/v1/api/games/", "")
+        checkAndStoreGameId()
+    }
+
+    @Then("^I receive an identifier for a game$")
+    fun checkAndStoreGameId() {
+        responseStatusIsCorrectInResponse(201)
+        extractIdFromResponse()
+        assertThat(response?.jsonPath()?.get<Int>("gameId")).isNotNull()
+    }
+
+
+    @Then("^I can retrieve an initialised game with that identifier$")
+    fun retrieveGameJustCreated() {
+        // Write code here that turns the phrase above into concrete actions
+        getFromURL("/apis/v1/api/games/" + gameId)
+        assertThat(response?.jsonPath()?.get<Int>("gameId")).isNotNull()
+
+    }
+
+
 }
