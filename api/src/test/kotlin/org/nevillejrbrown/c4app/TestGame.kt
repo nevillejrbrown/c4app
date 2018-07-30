@@ -11,12 +11,14 @@ class TestGame {
     @Test
     fun `Test Add a Piece`() {
         val board = Game(GameState.createInitialisedGameState(6, 7))
-        board.addCounter(3, Mark.P1)
-        board.addCounter(3, Mark.P1)
+        board.addCounter(1, Mark.P1)
+        board.addCounter(1, Mark.P1)
 
-        assertTrue(board.getMarkAtPosition(Position(1, 3)) == Mark.P1)
+        assertTrue(board.getMarkAtPosition(Position(1, 1)) == Mark.P1)
 
     }
+
+
 
 
     @Test

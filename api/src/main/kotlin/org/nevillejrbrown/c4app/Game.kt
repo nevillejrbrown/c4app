@@ -3,6 +3,7 @@ package org.nevillejrbrown.c4app
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
+import javax.persistence.Column
 import javax.persistence.Id
 
 class InvalidMoveException(msg: String) : Exception(msg)
@@ -11,6 +12,7 @@ data class Move(val colNum: Int, val mark: Mark)
 @Entity
 data class GameState( //val result: GameResult,
         val whosTurnItIs: Mark,
+        @Column(columnDefinition="varbinary(100000)")
         val pieces: Array<Array<Mark>>,
         val numRows: Int,
         val numCols: Int,
@@ -128,8 +130,8 @@ class Game(var gameState: GameState) {
         val newPosition: Position = positionModifier(previousPosition)
         if (newPosition.isValidPositionOnBoard(this)) {
             if (this.getMarkAtPosition(newPosition) == mark) {
-                return (howManyOfThisMarkInADirection(mark, numberFound + 1, newPosition, positionModifier))
             } else return numberFound
+            return (howManyOfThisMarkInADirection(mark, numberFound + 1, newPosition, positionModifier))
         } else return numberFound
     }
 }

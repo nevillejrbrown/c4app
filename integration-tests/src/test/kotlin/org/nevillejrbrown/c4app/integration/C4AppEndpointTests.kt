@@ -2,6 +2,7 @@ package org.nevillejrbrown.c4app.integration
 
 import cucumber.api.PendingException
 import cucumber.api.java.en.And
+import cucumber.api.java.en.Given
 import cucumber.api.java.en.Then
 import cucumber.api.java.en.When
 import io.restassured.RestAssured
@@ -71,6 +72,7 @@ class C4AppEndpointTests {
                 .isEqualTo(expectedStatus)
     }
 
+    @Given("^I have an empty game$")
     @When("^I create a game$")
     fun createNewGame() {
         // Write code here that turns the phrase above into concrete actions
@@ -87,12 +89,26 @@ class C4AppEndpointTests {
 
 
     @Then("^I can retrieve an initialised game with that identifier$")
+    @When("^I retrieve that game$")
     fun retrieveGameJustCreated() {
         // Write code here that turns the phrase above into concrete actions
         getFromURL("/apis/v1/api/games/" + gameId)
         assertThat(response?.jsonPath()?.get<Int>("gameId")).isNotNull()
 
     }
+
+    @When("^I make a move in column (\\d+)$")
+    fun makeAMove(colNum:Int) {
+        // Write code here that turns the phrase above into concrete actions
+        throw PendingException();
+    };
+
+
+    @Then("^My piece is in the bottom row of column (\\d+)$")
+    fun checkPieceAtBottomOfColumn(colNum:Int) {
+        // Write code here that turns the phrase above into concrete actions
+        throw PendingException();
+    };
 
 
 }

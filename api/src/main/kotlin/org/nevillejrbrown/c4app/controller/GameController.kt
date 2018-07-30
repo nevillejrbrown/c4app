@@ -41,13 +41,15 @@ class GameController(val gameService: GameService) {
     fun deleteGame(@PathVariable id: Long) {
         gameService.removeGame(id)
     }
-//
-//    @RequestMapping(value = "/{id}/move", method = [RequestMethod.PATCH])
-//    fun makeMove(@PathVariable id: Int, @RequestBody moveRequest: MoveRequest): GameResult {
-//        println("id=$id colnum=$moveRequest.colNum mark=$moveRequest.mark")
-//
-//        return gameService.playMove(id, moveRequest.colNum ?: -1, Mark.decode(moveRequest.mark ?: " "))
-//    }
-//
+
+
+
+    @RequestMapping(value = "/{id}/move", method = [RequestMethod.PATCH])
+    fun makeMove(@PathVariable id: Long, @RequestBody moveRequest: MoveRequest): GameResult {
+        println("id=$id colnum=$moveRequest.colNum mark=$moveRequest.mark")
+
+        return gameService.playMove(id, moveRequest.colNum ?: -1, Mark.decode(moveRequest.mark ?: " "))
+    }
+
 
 }
