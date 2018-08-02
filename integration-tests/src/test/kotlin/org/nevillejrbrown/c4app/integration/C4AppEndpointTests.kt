@@ -59,6 +59,16 @@ class C4AppEndpointTests {
                 .then().extract()
     }
 
+    fun patchJSON(uri: String, requestBody: String) {
+        response = RestAssured
+                .given()
+                .spec(requestSpecification)
+                .body(requestBody)
+                .`when`().patch(uri)
+                .then().extract()
+    }
+
+
     fun extractIdFromResponse() {
         gameId = response?.jsonPath()?.get<Int>("gameId")
     }
@@ -91,23 +101,24 @@ class C4AppEndpointTests {
     @Then("^I can retrieve an initialised game with that identifier$")
     @When("^I retrieve that game$")
     fun retrieveGameJustCreated() {
-        // Write code here that turns the phrase above into concrete actions
         getFromURL("/apis/v1/api/games/" + gameId)
         assertThat(response?.jsonPath()?.get<Int>("gameId")).isNotNull()
-
     }
 
     @When("^I make a move in column (\\d+)$")
     fun makeAMove(colNum:Int) {
-        // Write code here that turns the phrase above into concrete actions
-        throw PendingException();
-    };
+        patchJSON("/apis/v1/api/games/" + gameId + "/move", "{\n" +
+                "\"colNum\":" +  colNum +   ",\n" +
+                "\"mark\": \"X\"\n" +
+                "}")
+    }
 
 
     @Then("^My piece is in the bottom row of column (\\d+)$")
     fun checkPieceAtBottomOfColumn(colNum:Int) {
-        // Write code here that turns the phrase above into concrete actions
-        throw PendingException();
+        getFromURL("/apis/v1/api/games/" + gameId)
+
+        assertThat(response?.jsonPath()?.get<String>("pieces[" + colNum + "][0]")).isEqualTo("P2")
     };
 
 
