@@ -1,18 +1,14 @@
 package org.nevillejrbrown.c4app
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Column
-import javax.persistence.Id
+import javax.persistence.*
 
 class InvalidMoveException(msg: String) : Exception(msg)
 data class Move(val colNum: Int, val mark: Mark)
 
 @Entity
-data class GameState( //val result: GameResult,
-        val whosTurnItIs: Mark,
-        @Column(columnDefinition="varbinary(100000)")
+data class GameState(
+        var whosTurnItIs: Mark,
+        @Column(columnDefinition = "varbinary(100000)")
         val pieces: Array<Array<Mark>>,
         val numRows: Int,
         val numCols: Int,
@@ -20,10 +16,10 @@ data class GameState( //val result: GameResult,
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         var gameId: Long = 0) {
 
-    companion object Factory{
-        fun createInitialisedGameState(numRows: Int, numCols: Int):GameState {
+    companion object Factory {
+        fun createInitialisedGameState(numRows: Int, numCols: Int): GameState {
             return GameState(
-                    Mark.P1,
+                    Mark.X,
                     Array(numRows, { _ -> Array(numCols, { _ -> Mark.EMPTY }) }),
                     numRows,
                     numCols
@@ -43,7 +39,6 @@ data class Position(val rowNum: Int, val colNum: Int) {
     }
 }
 
-//class Game(var numRows: Int, var numCols: Int, var id: Long = 0) {
 class Game(var gameState: GameState) {
 
     companion object {
@@ -55,7 +50,20 @@ class Game(var gameState: GameState) {
         return gameState.pieces[colNum].contains(Mark.EMPTY)
     }
 
+    fun checkPlayerHasRightToMakeMove(mark: Mark) {
+        if (!mark.equals(gameState.whosTurnItIs)) {
+            throw GameStateException("${mark.toString()} is trying to move, but it is ${gameState.whosTurnItIs.toString()}'s go")
+        }
+    }
+
+    fun switchWhosGoItIs() {
+        if (gameState.whosTurnItIs.equals(Mark.X)) {
+            gameState.whosTurnItIs = Mark.O
+        } else gameState.whosTurnItIs = Mark.X
+    }
+
     fun addCounter(colNum: Int, mark: Mark): GameResult {
+        checkPlayerHasRightToMakeMove(mark)
         if (colNum >= gameState.numCols || colNum < 0)
             throw InvalidMoveException("There's no column in position $colNum")
         if (!isRoomInColumn(colNum))
@@ -64,6 +72,7 @@ class Game(var gameState: GameState) {
         val firstEmptySpotIndex: Int = gameState.pieces[colNum].indexOf(Mark.EMPTY)
         gameState.pieces[colNum][firstEmptySpotIndex] = mark
 
+        switchWhosGoItIs()
         if ((1 + howManyOfThisMarkInADirection(mark, 0,
                 Position(firstEmptySpotIndex, colNum), ::goSouth) >= Game.winningRowSize) ||
                 (1 + howManyOfThisMarkInTwoDirections(mark, 0,

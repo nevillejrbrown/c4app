@@ -1,14 +1,16 @@
 package org.nevillejrbrown.c4app
 
+import org.omg.CORBA.Object
+
 enum class Mark (val label:String) {
-    P1("O"),
-    P2("X"),
+    O("O"),
+    X("X"),
     EMPTY(" ");
 
     companion object {
         fun decode(thingToDecode:String) :Mark {
-            if (thingToDecode.equals("O")) return Mark.P1
-            if (thingToDecode.equals("X")) return Mark.P2
+            if (thingToDecode.equals("O")) return Mark.O
+            if (thingToDecode.equals("X")) return Mark.X
             else return Mark.EMPTY
         }
     }
@@ -16,6 +18,7 @@ enum class Mark (val label:String) {
     override fun toString(): String {
         return label
     }
+
 
 
 

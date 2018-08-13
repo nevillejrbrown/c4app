@@ -105,21 +105,24 @@ class C4AppEndpointTests {
         assertThat(response?.jsonPath()?.get<Int>("gameId")).isNotNull()
     }
 
-    @When("^I make a move in column (\\d+)$")
-    fun makeAMove(colNum:Int) {
+    @When("^I make a move in column (\\d+) with mark (.+)$")
+    fun makeAMove(colNum:Int, player:String) {
         patchJSON("/apis/v1/api/games/" + gameId + "/move", "{\n" +
                 "\"colNum\":" +  colNum +   ",\n" +
-                "\"mark\": \"X\"\n" +
+                "\"mark\": \"" + player + "\"\n" +
                 "}")
     }
 
-
-    @Then("^My piece is in the bottom row of column (\\d+)$")
-    fun checkPieceAtBottomOfColumn(colNum:Int) {
+    @Then("^Position (\\d+) of column (\\d+) has the mark (.+)$")
+    fun checkMarkIsAtPosition(position:Int, colNum:Int, mark:String) {
         getFromURL("/apis/v1/api/games/" + gameId)
 
-        assertThat(response?.jsonPath()?.get<String>("pieces[" + colNum + "][0]")).isEqualTo("P2")
+        assertThat(response?.jsonPath()?.get<String>("pieces[" + colNum + "]["+ position + "]")).isEqualTo(mark)
     };
 
 
+    @Then("^I get an error message returned$")
+    fun checkErrorMessageReturned() {
+        responseStatusIsCorrectInResponse(500)
+    }
 }

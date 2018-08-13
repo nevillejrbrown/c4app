@@ -8,6 +8,13 @@ Feature: C4APP API endpoint
 
     Scenario: Make a move
       Given I have an empty game
-      When I make a move in column 2
+      When I make a move in column 2 with mark X
       And I retrieve that game
-      Then My piece is in the bottom row of column 2
+      Then Position 0 of column 2 has the mark X
+
+  Scenario: Making a move twice in a row with same player causes error
+    Given I have an empty game
+    When I make a move in column 2 with mark X
+    And I make a move in column 2 with mark X
+    Then I get an error message returned
+    And Position 2 of column 2 has the mark EMPTY
