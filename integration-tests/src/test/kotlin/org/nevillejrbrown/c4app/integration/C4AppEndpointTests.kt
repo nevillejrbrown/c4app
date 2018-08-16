@@ -12,6 +12,8 @@ import io.restassured.response.ExtractableResponse
 import io.restassured.specification.RequestSpecification
 import org.assertj.core.api.Assertions.assertThat
 import org.nevillejrbrown.c4app.SpringBootKotlinApplication
+import org.nevillejrbrown.simplytherest.model.Resource
+import org.nevillejrbrown.simplytherest.model.ResourceCollection
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.context.ContextConfiguration
@@ -85,6 +87,12 @@ class C4AppEndpointTests {
     @Given("^I have an empty game$")
     @When("^I create a game$")
     fun createNewGame() {
+        // create GameCollection
+        val collection: ResourceCollection<Resource<Int>,Int> = ResourceCollection("game")
+
+
+        // call add method to get resource back
+        // store it; check the ID
         // Write code here that turns the phrase above into concrete actions
         postJSON("/apis/v1/api/games/", "")
         checkAndStoreGameId()
